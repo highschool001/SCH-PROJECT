@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Report Queue Status | Voter Empowerment System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding-top: 76px;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background: linear-gradient(135deg, #0a2b3e 0%, #1a4a6f 100%);
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .navbar-brand i {
+            color: #ffc107;
+            margin-right: 8px;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            color: rgba(255,255,255,0.9) !important;
+            text-decoration: none;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: #ffc107 !important;
+        }
+        
+        /* Page Hero */
+        .page-hero {
+            background: linear-gradient(135deg, #0a2b3e 0%, #1a4a6f 100%);
+            padding: 60px 0 40px;
+            text-align: center;
+            color: white;
+            margin-top: -76px;
+            padding-top: 120px;
+        }
+        
+        .page-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        /* Main Content */
+        .report-section {
+            padding: 60px 0;
+        }
+        
+        .report-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 0 10px;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .step.active .step-number {
+            background: #ffc107;
+            color: #0a2b3e;
+        }
+        
+        .step.completed .step-number {
+            background: #28a745;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .step.active .step-label {
+            color: #0a2b3e;
+            font-weight: 600;
+        }
+        
+        /* Form Steps */
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active-step {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #0a2b3e;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #ffc107;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,193,7,0.2);
+        }
+        
+        /* Queue Status Options */
+        .queue-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .queue-option {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .queue-option:hover {
+            border-color: #ffc107;
+            transform: translateY(-3px);
+        }
+        
+        .queue-option.selected {
+            border-color: #ffc107;
+            background: #fff8e7;
+        }
+        
+        .queue-option i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .queue-option h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .queue-option p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .low { color: #28a745; }
+        .moderate { color: #ffc107; }
+        .high { color: #dc3545; }
+        
+        /* Wait Time Slider */
+        .wait-time-slider {
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .wait-value {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0a2b3e;
+        }
+        
+        /* Button Styles */
+        .btn-next, .btn-prev, .btn-submit {
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-next {
+            background: #0a2b3e;
+            color: white;
+        }
+        
+        .btn-next:hover {
+            background: #1a4a6f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-prev {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-prev:hover {
+            background: #5a6268;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+        
+        /* Recent Reports */
+        .reports-section {
+            margin-top: 40px;
+        }
+        
+        .reports-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .report-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .report-center {
+            font-weight: 600;
+            color: #0a2b3e;
+        }
+        
+        .report-status {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-low {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-moderate {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .report-time {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .report-wait {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .ussd-alert {
+            background: #e3f2fd;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #0a2b3e;
+            color: white;
+            padding: 50px 0 20px;
+            margin-top: 60px;
+        }
+        
+        .footer h5 {
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            color: #ffc107;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            .page-hero h1 { font-size: 1.8rem; }
+            .report-card { padding: 25px; }
+            .queue-options { flex-direction: column; }
+            .step-label { font-size: 0.7rem; }
+            .step-number { width: 35px; height: 35px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-vote-yea"></i> VoterEmpower
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="check-pvc.html">Find PVC Center</a></li>
+                    <li class="nav-item"><a class="nav-link" href="verify-pu.html">Verify Polling Unit</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="report-queue.html">Report Queue</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                </ul>
+                <a href="admin/dashboard.html" class="btn-outline-light ms-lg-3">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="page-hero">
+        <div class="container">
+            <i class="fas fa-clock" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <h1>Report Queue Status</h1>
+            <p>Help fellow voters by sharing real-time queue conditions at PVC collection centers</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="report-section">
+        <div class="container">
+            <div class="report-card">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" id="step1Indicator">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Center Info</div>
+                    </div>
+                    <div class="step" id="step2Indicator">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Queue Status</div>
+                    </div>
+                    <div class="step" id="step3Indicator">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Confirm & Submit</div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Center Information -->
+                <div class="form-step active-step" id="step1">
+                    <h4 class="mb-4"><i class="fas fa-building"></i> Collection Center Details</h4>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Select Collection Center *</label>
+                        <select class="form-select" id="centerSelect">
+                            <option value="">-- Select a collection center --</option>
+                            <option value="LAUTECH PVC Collection Center">LAUTECH PVC Collection Center - Ogbomoso</option>
+                            <option value="Ibadan North INEC Office">Ibadan North INEC Office - Ibadan</option>
+                            <option value="Ikeja Local Government Secretariat">Ikeja Local Government Secretariat - Ikeja</option>
+                            <option value="Oyo State INEC Headquarters">Oyo State INEC Headquarters - Ibadan</option>
+                            <option value="Lagos State INEC Office">Lagos State INEC Office - Ikeja</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Your Name (Optional)</label>
+                        <input type="text" class="form-control" id="reporterName" placeholder="Enter your name (optional)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Your Phone Number (Optional, for verification)</label>
+                        <input type="tel" class="form-control" id="reporterPhone" placeholder="e.g., 08012345678">
+                    </div>
+                    
+                    <div class="text-end mt-4">
+                        <button class="btn-next" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Queue Status -->
+                <div class="form-step" id="step2">
+                    <h4 class="mb-4"><i class="fas fa-chart-line"></i> Queue Status</h4>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Current Queue Status *</label>
+                        <div class="queue-options">
+                            <div class="queue-option" data-status="low" onclick="selectQueueStatus('low')">
+                                <i class="fas fa-smile low fa-2x"></i>
+                                <h4>Low</h4>
+                                <p>No wait time</p>
+                            </div>
+                            <div class="queue-option" data-status="moderate" onclick="selectQueueStatus('moderate')">
+                                <i class="fas fa-meh moderate fa-2x"></i>
+                                <h4>Moderate</h4>
+                                <p>30-60 minutes wait</p>
+                            </div>
+                            <div class="queue-option" data-status="high" onclick="selectQueueStatus('high')">
+                                <i class="fas fa-frown high fa-2x"></i>
+                                <h4>High</h4>
+                                <p>1-2 hours wait</p>
+                            </div>
+                        </div>
+                        <input type="hidden" id="queueStatus" value="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Estimated Wait Time</label>
+                        <div class="wait-time-slider">
+                            <input type="range" class="form-range" id="waitTimeSlider" min="0" max="180" value="30" step="5">
+                            <div class="wait-value">
+                                <span id="waitTimeDisplay">30</span> minutes
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Additional Comments (Optional)</label>
+                        <textarea class="form-control" id="comments" rows="3" placeholder="e.g., The center is very crowded, only one desk open..."></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn-prev" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn-next" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Confirm & Submit -->
+                <div class="form-step" id="step3">
+                    <h4 class="mb-4"><i class="fas fa-check-circle"></i> Confirm Your Report</h4>
+                    
+                    <div class="info-card" style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div class="info-row" style="display: flex; margin-bottom: 10px;">
+                            <div class="info-label" style="width: 130px; font-weight: bold;">Center:</div>
+                            <div class="info-value" id="confirmCenter">-</div>
+                        </div>
+                        <div class="info-row" style="display: flex; margin-bottom: 10px;">
+                            <div class="info-label" style="width: 130px; font-weight: bold;">Queue Status:</div>
+                            <div class="info-value" id="confirmStatus">-</div>
+                        </div>
+                        <div class="info-row" style="display: flex; margin-bottom: 10px;">
+                            <div class="info-label" style="width: 130px; font-weight: bold;">Wait Time:</div>
+                            <div class="info-value" id="confirmWaitTime">-</div>
+                        </div>
+                        <div class="info-row" style="display: flex; margin-bottom: 10px;">
+                            <div class="info-label" style="width: 130px; font-weight: bold;">Reporter:</div>
+                            <div class="info-value" id="confirmReporter">Anonymous</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i> By submitting this report, you confirm that the information is accurate to the best of your knowledge.
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn-prev" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn-submit" onclick="submitReport()"><i class="fas fa-paper-plane"></i> Submit Report</button>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="alert alert-success text-center" id="successMessage" style="display: none; margin-top: 20px;">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h5>Thank You for Your Report!</h5>
+                    <p>Your submission will help other voters plan their visit.</p>
+                    <button class="btn btn-primary mt-2" onclick="resetForm()">Submit Another Report</button>
+                </div>
+            </div>
+
+            <!-- USSD Alert -->
+            <div class="ussd-alert">
+                <i class="fas fa-mobile-alt fa-2x mb-2"></i>
+                <h5>No Internet? Use USSD!</h5>
+                <p>Dial <strong>*347#</strong> from any phone to report queue status.</p>
+                <small>Available on all networks</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-vote-yea"></i> VoterEmpower</h5>
+                    <p>Empowering Nigerian voters with accessible information for better electoral participation.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="check-pvc.html">Find PVC Center</a></li>
+                        <li><a href="verify-pu.html">Verify Polling Unit</a></li>
+                        <li><a href="report-queue.html">Report Queue</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Contact</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-phone"></i> USSD: *347#</li>
+                        <li><i class="fas fa-envelope"></i> support@voterempower.gov.ng</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Multi-Channel Voter Empowerment System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let currentStep = 1;
+        let selectedStatus = '';
+        let reports = JSON.parse(localStorage.getItem('queueReports')) || [];
+        
+        // Update step indicators
+        function updateSteps() {
+            for (let i = 1; i <= 3; i++) {
+                const stepElement = document.getElementById(`step${i}Indicator`);
+                const formStep = document.getElementById(`step${i}`);
+                
+                if (i < currentStep) {
+                    stepElement.classList.add('completed');
+                    stepElement.classList.remove('active');
+                } else if (i === currentStep) {
+                    stepElement.classList.add('active');
+                    stepElement.classList.remove('completed');
+                    formStep.classList.add('active-step');
+                } else {
+                    stepElement.classList.remove('active', 'completed');
+                    formStep.classList.remove('active-step');
+                }
+            }
+        }
+        
+        // Next step
+        function nextStep() {
+            if (currentStep === 1) {
+                const center = document.getElementById('centerSelect').value;
+                if (!center) {
+                    alert('Please select a collection center');
+                    return;
+                }
+            }
+            
+            if (currentStep === 2) {
+                const status = document.getElementById('queueStatus').value;
+                if (!status) {
+                    alert('Please select a queue status');
+                    return;
+                }
+                
+                // Update confirmation page
+                document.getElementById('confirmCenter').innerText = document.getElementById('centerSelect').options[document.getElementById('centerSelect').selectedIndex]?.text || '-';
+                
+                let statusText = '';
+                if (selectedStatus === 'low') statusText = '🟢 Low - Short wait';
+                else if (selectedStatus === 'moderate') statusText = '🟡 Moderate - About 45 mins';
+                else if (selectedStatus === 'high') statusText = '🔴 High - Long wait expected';
+                document.getElementById('confirmStatus').innerText = statusText;
+                
+                document.getElementById('confirmWaitTime').innerText = document.getElementById('waitTimeDisplay').innerText + ' minutes';
+                
+                const reporterName = document.getElementById('reporterName').value;
+                document.getElementById('confirmReporter').innerText = reporterName || 'Anonymous';
+            }
+            
+            if (currentStep < 3) {
+                currentStep++;
+                updateSteps();
+            }
+        }
+        
+        // Previous step
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateSteps();
+            }
+        }
+        
+        // Select queue status
+        function selectQueueStatus(status) {
+            selectedStatus = status;
+            document.getElementById('queueStatus').value = status;
+            
+            // Update UI
+            document.querySelectorAll('.queue-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`.queue-option[data-status="${status}"]`).classList.add('selected');
+        }
+        
+        // Wait time slider
+        const waitSlider = document.getElementById('waitTimeSlider');
+        const waitDisplay = document.getElementById('waitTimeDisplay');
+        
+        if (waitSlider) {
+            waitSlider.addEventListener('input', function() {
+                waitDisplay.innerText = this.value;
+            });
+        }
+        
+        // Submit report
+        function submitReport() {
+            const report = {
+                id: Date.now(),
+                center: document.getElementById('centerSelect').options[document.getElementById('centerSelect').selectedIndex]?.text || '',
+                status: selectedStatus,
+                waitTime: document.getElementById('waitTimeDisplay').innerText,
+                reporterName: document.getElementById('reporterName').value || 'Anonymous',
+                reporterPhone: document.getElementById('reporterPhone').value || '',
+                comments: document.getElementById('comments').value || '',
+                timestamp: new Date().toLocaleString()
+            };
+            
+            reports.unshift(report);
+            localStorage.setItem('queueReports', JSON.stringify(reports));
+            
+            // Hide form, show success
+            document.querySelector('.step-indicator').style.display = 'none';
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.style.display = 'none';
+            });
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Show success message
+            alert('✓ Report submitted successfully!\n\nThank you for helping fellow voters.');
+        }
+        
+        // Reset form
+        function resetForm() {
+            // Reset all form fields
+            document.getElementById('centerSelect').value = '';
+            document.getElementById('reporterName').value = '';
+            document.getElementById('reporterPhone').value = '';
+            document.getElementById('comments').value = '';
+            document.getElementById('queueStatus').value = '';
+            if (waitSlider) waitSlider.value = '30';
+            if (waitDisplay) waitDisplay.innerText = '30';
+            
+            selectedStatus = '';
+            document.querySelectorAll('.queue-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            document.querySelector('.step-indicator').style.display = 'flex';
+            document.getElementById('successMessage').style.display = 'none';
+            
+            currentStep = 1;
+            updateSteps();
+            document.getElementById('step1').classList.add('active-step');
+            
+            // Reset step classes
+            for (let i = 1; i <= 3; i++) {
+                const stepElement = document.getElementById(`step${i}Indicator`);
+                const formStep = document.getElementById(`step${i}`);
+                if (i === 1) {
+                    stepElement.classList.add('active');
+                    stepElement.classList.remove('completed');
+                } else {
+                    stepElement.classList.remove('active', 'completed');
+                }
+                if (i !== 1) {
+                    formStep.classList.remove('active-step');
+                }
+            }
+        }
+        
+        console.log('Queue Reporting Page Loaded');
+    </script>
+</body>
+</html>

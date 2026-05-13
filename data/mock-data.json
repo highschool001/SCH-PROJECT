@@ -1,0 +1,42 @@
+{
+    "voters": [
+        {
+            "vin": "1234567890",
+            "name": "John Adegoke Ogunleye",
+            "state": "Oyo",
+            "lga": "Ogbomoso North",
+            "ward": "LAUTECH",
+            "pollingUnit": "PU001",
+            "pollingUnitName": "LAUTECH Gate",
+            "collectionCenter": {
+                "id": "CC001",
+                "name": "LAUTECH PVC Collection Center",
+                "address": "LAUTECH Main Gate, Ogbomoso, Oyo State",
+                "latitude": 8.1574,
+                "longitude": 4.2587,
+                "operatingHours": "9am - 4pm, Monday - Friday",
+                "queueStatus": "Moderate",
+                "estimatedWaitTime": 45
+            }
+        },
+        {
+            "vin": "0987654321",
+            "name": "Adebayo Oluwaseun",
+            "state": "Oyo",
+            "lga": "Ibadan North",
+            "ward": "Bodija",
+            "pollingUnit": "PU456",
+            "pollingUnitName": "Bodija Market",
+            "collectionCenter": {
+                "id": "CC002",
+                "name": "Ibadan North INEC Office",
+                "address": "Secretariat Road, Ibadan, Oyo State",
+                "latitude": 7.3775,
+                "longitude": 3.9470,
+                "operatingHours": "9am - 4pm, Monday - Friday",
+                "queueStatus": "Low",
+                "estimatedWaitTime": 15
+            }
+        }
+    ]
+}

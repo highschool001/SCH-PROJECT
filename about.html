@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>About Us | Voter Empowerment System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding-top: 76px;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background: linear-gradient(135deg, #0a2b3e 0%, #1a4a6f 100%);
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .navbar-brand i {
+            color: #ffc107;
+            margin-right: 8px;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            color: rgba(255,255,255,0.9) !important;
+            text-decoration: none;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: #ffc107 !important;
+        }
+        
+        .btn-outline-light {
+            color: white;
+            border: 1px solid white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-light:hover {
+            background: white;
+            color: #0a2b3e;
+        }
+        
+        /* Page Hero */
+        .page-hero {
+            background: linear-gradient(135deg, #0a2b3e 0%, #1a4a6f 100%);
+            padding: 60px 0 40px;
+            text-align: center;
+            color: white;
+            margin-top: -76px;
+            padding-top: 120px;
+        }
+        
+        .page-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        /* Section Styles */
+        .section {
+            padding: 60px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0a2b3e;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #ffc107, #1a4a6f);
+            border-radius: 3px;
+        }
+        
+        /* About Card */
+        .about-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .about-card h3 {
+            color: #0a2b3e;
+            margin-bottom: 20px;
+        }
+        
+        .about-card p {
+            line-height: 1.8;
+            color: #555;
+        }
+        
+        /* Mission & Vision */
+        .mission-card {
+            background: linear-gradient(135deg, #0a2b3e, #1a4a6f);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .mission-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .mission-card i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ffc107;
+        }
+        
+        .mission-card h4 {
+            margin-bottom: 15px;
+        }
+        
+        /* USSD Box */
+        .ussd-box {
+            background: linear-gradient(135deg, #1a4a6f, #0a2b3e);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+        
+        .ussd-code-large {
+            font-size: 3rem;
+            font-weight: 700;
+            background: #ffc107;
+            color: #0a2b3e;
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+        
+        .ussd-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .ussd-step-number {
+            width: 40px;
+            height: 40px;
+            background: #ffc107;
+            color: #0a2b3e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        /* FAQ Accordion */
+        .accordion-item {
+            border: none;
+            margin-bottom: 15px;
+            border-radius: 12px !important;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .accordion-button {
+            background: white;
+            font-weight: 600;
+            color: #0a2b3e;
+            padding: 20px;
+        }
+        
+        .accordion-button:not(.collapsed) {
+            background: #0a2b3e;
+            color: white;
+        }
+        
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(0,0,0,0.125);
+        }
+        
+        .accordion-body {
+            background: #f8f9fa;
+            padding: 20px;
+            line-height: 1.7;
+        }
+        
+        /* Team Section */
+        .team-card {
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .team-icon {
+            font-size: 4rem;
+            color: #1a4a6f;
+            margin-bottom: 15px;
+        }
+        
+        .team-card h5 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        /* Stats Section */
+        .stats-section {
+            background: white;
+            padding: 60px 0;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffc107;
+        }
+        
+        .stat-label {
+            color: #0a2b3e;
+            font-weight: 500;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #0a2b3e;
+            color: white;
+            padding: 50px 0 20px;
+        }
+        
+        .footer h5 {
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            color: #ffc107;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            .page-hero h1 { font-size: 1.8rem; }
+            .ussd-code-large { font-size: 1.8rem; letter-spacing: 2px; }
+            .section { padding: 40px 0; }
+            .about-card { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-vote-yea"></i> VoterEmpower
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="check-pvc.html">Find PVC Center</a></li>
+                    <li class="nav-item"><a class="nav-link" href="verify-pu.html">Verify Polling Unit</a></li>
+                    <li class="nav-item"><a class="nav-link" href="report-queue.html">Report Queue</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="about.html">About</a></li>
+                </ul>
+                <a href="admin/dashboard.html" class="btn-outline-light ms-lg-3">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="page-hero">
+        <div class="container">
+            <i class="fas fa-info-circle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <h1>About Voter Empowerment System</h1>
+            <p>Empowering Nigerian voters with accessible information for better electoral participation</p>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="stat-box">
+                        <div class="stat-number">93M+</div>
+                        <div class="stat-label">Registered Voters</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-box">
+                        <div class="stat-number">176k+</div>
+                        <div class="stat-label">Polling Units</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-box">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Service Availability</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-box">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Nationwide Access</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <div class="container">
+        <div class="about-card">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h3><i class="fas fa-vote-yea" style="color: #ffc107;"></i> What is VoterEmpower?</h3>
+                    <p>The Multi-Channel Voter Empowerment System is a digital platform designed to help Nigerian voters access critical electoral information through their preferred channels - either via the web (smartphone/computer) or USSD (any basic mobile phone).</p>
+                    <p>Our mission is to bridge the digital divide by ensuring that every eligible voter, regardless of their technology access or digital literacy, can easily find their PVC collection center, verify their polling unit, and access real-time queue information.</p>
+                    <p>This system is a solution to the 8.2 million uncollected PVCs problem identified after the 2023 general elections, providing voters with the information they need when they need it.</p>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <i class="fas fa-chart-line" style="font-size: 8rem; color: #1a4a6f; opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission & Vision -->
+    <section class="section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="mission-card">
+                        <i class="fas fa-bullseye"></i>
+                        <h4>Our Mission</h4>
+                        <p>To empower every Nigerian voter with accessible, real-time electoral information through inclusive technology that works for everyone - from smartphone users to basic phone users.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mission-card">
+                        <i class="fas fa-eye"></i>
+                        <h4>Our Vision</h4>
+                        <p>A Nigeria where no voter is left behind due to lack of information, and where technology serves as a bridge to democratic participation rather than a barrier.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- USSD Instructions -->
+    <div class="container mb-5">
+        <div class="ussd-box">
+            <i class="fas fa-mobile-alt" style="font-size: 3rem; color: #ffc107;"></i>
+            <h3 class="mt-3">Access via USSD - No Internet Required!</h3>
+            <p>Dial the shortcode below from any mobile phone (MTN, Glo, Airtel, 9mobile)</p>
+            <div class="ussd-code-large">*347#</div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="ussd-step">
+                        <div class="ussd-step-number">1</div>
+                        <div>Dial <strong>*347#</strong> on your phone</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="ussd-step">
+                        <div class="ussd-step-number">2</div>
+                        <div>Select an option from the menu</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="ussd-step">
+                        <div class="ussd-step-number">3</div>
+                        <div>Enter your VIN when prompted</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="ussd-step">
+                        <div class="ussd-step-number">4</div>
+                        <div>Receive your PVC center and polling unit details</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">How to Use This Platform</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="team-card">
+                        <i class="fas fa-id-card team-icon"></i>
+                        <h5>Find PVC Center</h5>
+                        <p>Enter your VIN to locate where to collect your Permanent Voter Card</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="team-card">
+                        <i class="fas fa-map-marker-alt team-icon"></i>
+                        <h5>Verify Polling Unit</h5>
+                        <p>Confirm your exact polling unit location before election day</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="team-card">
+                        <i class="fas fa-clock team-icon"></i>
+                        <h5>Report Queue Status</h5>
+                        <p>Help others by sharing real-time queue information at collection centers</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            <i class="fas fa-question-circle me-2"></i> What is a VIN and where do I find it?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            VIN stands for Voter Identification Number. It is a unique 10-15 digit number printed on your Permanent Voter Card (PVC). You can find it on the front of your PVC card.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            <i class="fas fa-mobile-alt me-2"></i> Do I need internet to use this service?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            No! You can dial <strong>*347#</strong> from any mobile phone to access all services via USSD. No internet connection or smartphone is required. This service works on all networks (MTN, Glo, Airtel, 9mobile).
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            <i class="fas fa-credit-card me-2"></i> Does this service cost anything?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            The service is completely FREE for all users. Standard network charges for USSD sessions apply (typically a few naira per session), but there are no additional fees for using this service.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            <i class="fas fa-database me-2"></i> Is my personal data safe?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Yes. We prioritize data privacy and security. The system uses simulated data for demonstration purposes. In production, all data would be handled in compliance with the Nigeria Data Protection Regulation (NDPR) 2019.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            <i class="fas fa-flag-checkered me-2"></i> What should I do on election day?
+                        </button>
+                    </h2>
+                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            On election day, bring your PVC to your verified polling unit. Arrive early, as voting typically starts at 8:00 AM. Bring a valid government ID as backup identification. Do not bring phones or cameras into the voting cubicle.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                            <i class="fas fa-headset me-2"></i> Who do I contact for help?
+                        </button>
+                    </h2>
+                    <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            For assistance, dial <strong>*347#</strong> and follow the help menu. You can also email support@voterempower.gov.ng or call INEC's customer care line for official electoral inquiries.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-vote-yea"></i> VoterEmpower</h5>
+                    <p>Empowering Nigerian voters with accessible information for better electoral participation.</p>
+                    <div class="social-links">
+                        <a href="#" style="color: white; margin-right: 15px;"><i class="fab fa-facebook"></i></a>
+                        <a href="#" style="color: white; margin-right: 15px;"><i class="fab fa-twitter"></i></a>
+                        <a href="#" style="color: white; margin-right: 15px;"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="check-pvc.html">Find PVC Center</a></li>
+                        <li><a href="verify-pu.html">Verify Polling Unit</a></li>
+                        <li><a href="report-queue.html">Report Queue</a></li>
+                        <li><a href="about.html">About</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Contact</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-phone"></i> USSD: *347#</li>
+                        <li><i class="fas fa-envelope"></i> support@voterempower.gov.ng</li>
+                        <li><i class="fas fa-clock"></i> Available 24/7</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Multi-Channel Voter Empowerment System. All rights reserved.</p>
+                <p class="mt-2">
+                    <small>A Multi-Channel Voter Empowerment System: Streamlining PVC Collection and Polling Unit Information in Nigeria</small>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        console.log('About Page Loaded - Voter Empowerment System');
+    </script>
+</body>
+</html>

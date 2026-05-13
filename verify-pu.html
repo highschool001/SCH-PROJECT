@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Polling Unit | Voter Empowerment System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 76px;
+            background: #f0f2f5;
+        }
+        
+        .navbar {
+            background: #0a2b3e;
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .navbar-brand i {
+            color: #ffc107;
+        }
+        
+        .nav-link {
+            color: white !important;
+        }
+        
+        .nav-link.active {
+            color: #ffc107 !important;
+        }
+        
+        .page-hero {
+            background: #0a2b3e;
+            color: white;
+            padding: 50px 0;
+            text-align: center;
+        }
+        
+        .search-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px auto;
+            max-width: 700px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .search-input:focus {
+            border-color: #ffc107;
+            outline: none;
+        }
+        
+        .btn-search {
+            background: #ffc107;
+            color: #0a2b3e;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-search:hover {
+            background: #ff9800;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffc107;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result-card {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #28a745;
+        }
+        
+        .result-header {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .info-label {
+            width: 130px;
+            font-weight: bold;
+            color: #0a2b3e;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+        
+        .example-box {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .example-btn {
+            background: #0a2b3e;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        
+        .example-btn:hover {
+            background: #ffc107;
+            color: #0a2b3e;
+        }
+        
+        .footer {
+            background: #0a2b3e;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .info-row {
+                flex-direction: column;
+            }
+            .info-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-vote-yea"></i> VoterEmpower
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="check-pvc.html">Find PVC Center</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="verify-pu.html">Verify Polling Unit</a></li>
+                    <li class="nav-item"><a class="nav-link" href="report-queue.html">Report Queue</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="page-hero">
+        <div class="container">
+            <i class="fas fa-map-marked-alt" style="font-size: 3rem;"></i>
+            <h1>Verify Your Polling Unit</h1>
+            <p>Enter your VIN to find where to vote on election day</p>
+        </div>
+    </div>
+
+    <!-- Search Card -->
+    <div class="container">
+        <div class="search-card">
+            <div style="text-align: center;">
+                <i class="fas fa-id-card" style="font-size: 2.5rem; color: #0a2b3e;"></i>
+                <h3>Enter Your VIN</h3>
+                <p>Your Voter Identification Number is on your PVC</p>
+            </div>
+            
+            <input type="text" id="vinInput" class="search-input" placeholder="Example: 1234567890">
+            <button class="btn-search" onclick="verifyPU()">
+                <i class="fas fa-check-circle"></i> Verify Now
+            </button>
+            
+            <div class="loading" id="loadingDiv">
+                <div class="spinner"></div>
+                <p>Verifying your polling unit...</p>
+            </div>
+            
+            <div class="result-card" id="resultDiv">
+                <div class="result-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Polling Unit Verified!</h3>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Voter Name:</div>
+                    <div class="info-value" id="displayName">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">State:</div>
+                    <div class="info-value" id="displayState">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">LGA:</div>
+                    <div class="info-value" id="displayLGA">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Polling Unit:</div>
+                    <div class="info-value" id="displayPU">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">PU Code:</div>
+                    <div class="info-value" id="displayPUCode">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Address:</div>
+                    <div class="info-value" id="displayAddress">-</div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <strong>Test VINs (click to test):</strong><br>
+                <button class="example-btn" onclick="testVIN('1234567890')">1234567890</button>
+                <button class="example-btn" onclick="testVIN('0987654321')">0987654321</button>
+                <button class="example-btn" onclick="testVIN('1122334455')">1122334455</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2024 Multi-Channel Voter Empowerment System | Dial *347# for USSD access</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ===== MOCK DATABASE =====
+        const voterDatabase = {
+            "1234567890": {
+                name: "John Adegoke Ogunleye",
+                state: "Oyo State",
+                lga: "Ogbomoso North",
+                puName: "LAUTECH Main Gate Polling Unit",
+                puCode: "04/01/01/001",
+                address: "LAUTECH Main Gate, Ogbomoso, Oyo State"
+            },
+            "0987654321": {
+                name: "Adebayo Oluwaseun",
+                state: "Oyo State",
+                lga: "Ibadan North",
+                puName: "Bodija Market Polling Unit",
+                puCode: "02/04/03/012",
+                address: "Bodija Market, Ibadan, Oyo State"
+            },
+            "1122334455": {
+                name: "Fatima Abubakar",
+                state: "Lagos State",
+                lga: "Ikeja",
+                puName: "Ikeja City Hall Polling Unit",
+                puCode: "01/02/01/005",
+                address: "Ikeja City Hall, Lagos State"
+            }
+        };
+
+        // Test function - fills input and clicks verify
+        function testVIN(vin) {
+            document.getElementById('vinInput').value = vin;
+            verifyPU();
+        }
+
+        // Main verify function
+        function verifyPU() {
+            // Get the VIN from input
+            var vinInput = document.getElementById('vinInput');
+            var vin = vinInput.value.trim();
+            
+            // Clear any previous alerts
+            console.log("Searching for VIN:", vin);
+            
+            // Check if empty
+            if (vin === "") {
+                alert("Please enter your VIN");
+                return;
+            }
+            
+            // Check length
+            if (vin.length < 10 || vin.length > 15) {
+                alert("VIN must be 10-15 digits long");
+                return;
+            }
+            
+            // Check if only numbers
+            if (!/^\d+$/.test(vin)) {
+                alert("VIN must contain only numbers");
+                return;
+            }
+            
+            // Show loading
+            var loadingDiv = document.getElementById('loadingDiv');
+            var resultDiv = document.getElementById('resultDiv');
+            
+            loadingDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            
+            // Simulate network delay
+            setTimeout(function() {
+                loadingDiv.style.display = 'none';
+                
+                // Look up the VIN in database
+                var voterData = voterDatabase[vin];
+                
+                if (voterData) {
+                    // Found - display results
+                    document.getElementById('displayName').innerHTML = '<i class="fas fa-user"></i> ' + voterData.name;
+                    document.getElementById('displayState').innerHTML = '<i class="fas fa-map-marker-alt"></i> ' + voterData.state;
+                    document.getElementById('displayLGA').innerHTML = '<i class="fas fa-city"></i> ' + voterData.lga;
+                    document.getElementById('displayPU').innerHTML = '<i class="fas fa-school"></i> ' + voterData.puName;
+                    document.getElementById('displayPUCode').innerHTML = '<i class="fas fa-barcode"></i> ' + voterData.puCode;
+                    document.getElementById('displayAddress').innerHTML = '<i class="fas fa-location-dot"></i> ' + voterData.address;
+                    
+                    resultDiv.style.display = 'block';
+                    resultDiv.scrollIntoView({ behavior: 'smooth' });
+                    
+                    console.log("Found record for:", vin);
+                } else {
+                    // Not found
+                    alert("VIN not found!\n\nPlease try one of these test VINs:\n1234567890\n0987654321\n1122334455");
+                    console.log("VIN not found:", vin);
+                }
+            }, 1000);
+        }
+        
+        // Add Enter key support
+        document.getElementById('vinInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                verifyPU();
+            }
+        });
+        
+        console.log("Page loaded. Ready to verify polling units.");
+    </script>
+</body>
+</html>

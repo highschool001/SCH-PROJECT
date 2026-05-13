@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Find PVC Collection Center | Voter Empowerment System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet.js for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding-top: 76px;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background: linear-gradient(135deg, #0a2b3e 0%, #1a4a6f 100%);
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .navbar-brand i {
+            color: #ffc107;
+            margin-right: 8px;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            color: rgba(255,255,255,0.9) !important;
+            text-decoration: none;
+        }
+        
+        .nav-link:hover {
+            color: #ffc107 !important;
+        }
+        
+        .nav-link.active {
+            color: #ffc107 !important;
+        }
+        
+        .btn-outline-light {
+            color: white;
+            border: 1px solid white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-light:hover {
+            background: white;
+            color: #0a2b3e;
+        }
+        
+        /* Search Section */
+        .search-section {
+            padding: 60px 0;
+            min-height: 100vh;
+        }
+        
+        .search-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        
+        .search-input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #ffc107;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,193,7,0.2);
+        }
+        
+        .btn-search {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            border: none;
+            padding: 15px 35px;
+            border-radius: 15px;
+            font-weight: 600;
+            color: #0a2b3e;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffc107;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result-card {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .info-label {
+            width: 140px;
+            font-weight: 600;
+            color: #0a2b3e;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+        
+        .queue-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .status-low {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-moderate {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        #map {
+            height: 300px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-directions {
+            background: #0a2b3e;
+            color: white;
+        }
+        
+        .btn-directions:hover {
+            background: #1a4a6f;
+        }
+        
+        .btn-report {
+            background: #ffc107;
+            color: #0a2b3e;
+        }
+        
+        .btn-report:hover {
+            background: #ff9800;
+        }
+        
+        .example-vins {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .example-vins span {
+            display: inline-block;
+            background: #0a2b3e;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-family: monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .example-vins span:hover {
+            background: #ffc107;
+            color: #0a2b3e;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #0a2b3e;
+            color: white;
+            padding: 50px 0 20px;
+        }
+        
+        .footer h5 {
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            color: #ffc107;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            
+            .search-card {
+                padding: 25px;
+            }
+            
+            .search-input-group {
+                flex-direction: column;
+            }
+            
+            .info-row {
+                flex-direction: column;
+            }
+            
+            .info-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVIGATION BAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-vote-yea"></i> VoterEmpower
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="check-pvc.html">
+                            <i class="fas fa-id-card"></i> Find PVC Center
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="verify-pu.html">Verify Polling Unit</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report-queue.html">Report Queue</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                </ul>
+                <a href="admin/dashboard.html" class="btn-outline-light ms-lg-3">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== SEARCH SECTION ===== -->
+    <section class="search-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="search-card">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-id-card" style="font-size: 3rem; color: #1a4a6f;"></i>
+                            <h2 class="mt-3" style="color: #0a2b3e;">Find Your PVC Collection Center</h2>
+                            <p class="text-muted">Enter your Voter Identification Number (VIN) to locate your nearest PVC collection center</p>
+                        </div>
+                        
+                        <div class="search-input-group">
+                            <input type="text" id="vinInput" class="search-input" placeholder="Enter your VIN (10-15 digits)" maxlength="15">
+                            <button class="btn-search" onclick="searchPVCenter()">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                        
+                        <input type="hidden" id="centerLat" value="">
+                        <input type="hidden" id="centerLng" value="">
+                        
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p>Searching for your information...</p>
+                        </div>
+                        
+                        <div class="result-card" id="resultCard">
+                            <h5 class="mb-3">
+                                <i class="fas fa-check-circle" style="color: #28a745;"></i> 
+                                PVC Collection Center Information
+                            </h5>
+                            
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-user"></i> Voter Name:</div>
+                                <div class="info-value" id="voterName">-</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-map-pin"></i> State:</div>
+                                <div class="info-value" id="voterState">-</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-city"></i> LGA:</div>
+                                <div class="info-value" id="voterLGA">-</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-building"></i> Center Name:</div>
+                                <div class="info-value" id="centerName">-</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-location-dot"></i> Address:</div>
+                                <div class="info-value" id="centerAddress">-</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-clock"></i> Current Queue:</div>
+                                <div class="info-value">
+                                    <span class="queue-status" id="queueStatus">-</span>
+                                    <small id="waitTime" class="text-muted ms-2"></small>
+                                </div>
+                            </div>
+                            
+                            <div id="map"></div>
+                            
+                            <div class="action-buttons">
+                                <button class="btn-action btn-directions" onclick="getDirections()">
+                                    <i class="fas fa-directions"></i> Get Directions
+                                </button>
+                                <button class="btn-action btn-report" onclick="reportQueue()">
+                                    <i class="fas fa-flag"></i> Report Queue Status
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="example-vins">
+                            <small class="text-muted d-block mb-2">Test with these VINs:</small>
+                            <span onclick="testVIN('1234567890')">1234567890</span>
+                            <span onclick="testVIN('0987654321')">0987654321</span>
+                            <span onclick="testVIN('1122334455')">1122334455</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== INFO BANNER ===== -->
+    <div class="container mb-5">
+        <div class="alert alert-info text-center" style="background: #e3f2fd; border-radius: 15px;">
+            <i class="fas fa-mobile-alt"></i> 
+            <strong>No internet?</strong> Dial <strong class="text-primary">*347#</strong> from any phone to access this service via USSD!
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-vote-yea"></i> VoterEmpower</h5>
+                    <p>Empowering Nigerian voters with accessible information for better electoral participation.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="check-pvc.html">Find PVC Center</a></li>
+                        <li><a href="verify-pu.html">Verify Polling Unit</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Contact</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-phone"></i> USSD: *347#</li>
+                        <li><i class="fas fa-envelope"></i> support@voterempower.gov.ng</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Multi-Channel Voter Empowerment System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // ===== MOCK DATA =====
+        const mockVoterData = {
+            "1234567890": {
+                name: "John Adegoke Ogunleye",
+                state: "Oyo",
+                lga: "Ogbomoso North",
+                centerName: "LAUTECH PVC Collection Center",
+                centerAddress: "LAUTECH Main Gate, Ogbomoso, Oyo State",
+                latitude: 8.1574,
+                longitude: 4.2587,
+                queueStatus: "Moderate",
+                waitTime: "45 minutes"
+            },
+            "0987654321": {
+                name: "Adebayo Oluwaseun",
+                state: "Oyo",
+                lga: "Ibadan North",
+                centerName: "Ibadan North INEC Office",
+                centerAddress: "Secretariat Road, Ibadan, Oyo State",
+                latitude: 7.3775,
+                longitude: 3.9470,
+                queueStatus: "Low",
+                waitTime: "15 minutes"
+            },
+            "1122334455": {
+                name: "Fatima Abubakar",
+                state: "Lagos",
+                lga: "Ikeja",
+                centerName: "Ikeja Local Government Secretariat",
+                centerAddress: "Ikeja, Lagos State",
+                latitude: 6.6018,
+                longitude: 3.3515,
+                queueStatus: "High",
+                waitTime: "90 minutes"
+            }
+        };
+        
+        let currentMap = null;
+        
+        // ===== FUNCTION TO TEST VIN (Fills input and searches) =====
+        function testVIN(vin) {
+            document.getElementById('vinInput').value = vin;
+            searchPVCenter();
+        }
+        
+        // ===== MAIN SEARCH FUNCTION =====
+        function searchPVCenter() {
+            const vinInput = document.getElementById('vinInput');
+            const vin = vinInput ? vinInput.value.trim() : '';
+            
+            // Validate
+            if(!vin) {
+                showMessage('Please enter your VIN', 'error');
+                return;
+            }
+            
+            if(!validateVIN(vin)) {
+                showMessage('Invalid VIN format. Please enter 10-15 digits only.', 'error');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultCard').style.display = 'none';
+            
+            // Simulate API delay
+            setTimeout(function() {
+                document.getElementById('loading').style.display = 'none';
+                
+                if(mockVoterData[vin]) {
+                    displayResult(mockVoterData[vin]);
+                } else {
+                    showMessage('VIN not found. Please check your VIN and try again.', 'error');
+                }
+            }, 1000);
+        }
+        
+        // ===== DISPLAY RESULT FUNCTION =====
+        function displayResult(data) {
+            // Populate fields
+            document.getElementById('voterName').innerHTML = '<i class="fas fa-user-circle"></i> ' + data.name;
+            document.getElementById('voterState').innerHTML = '<i class="fas fa-map-marker-alt"></i> ' + data.state;
+            document.getElementById('voterLGA').innerHTML = '<i class="fas fa-city"></i> ' + data.lga;
+            document.getElementById('centerName').innerHTML = '<i class="fas fa-building"></i> ' + data.centerName;
+            document.getElementById('centerAddress').innerHTML = '<i class="fas fa-location-dot"></i> ' + data.centerAddress;
+            
+            // Queue status with colors
+            const queueElement = document.getElementById('queueStatus');
+            const waitElement = document.getElementById('waitTime');
+            
+            let statusClass = '';
+            let statusText = '';
+            
+            if(data.queueStatus === 'Low') {
+                statusClass = 'status-low';
+                statusText = '🟢 Low - Short wait';
+            } else if(data.queueStatus === 'Moderate') {
+                statusClass = 'status-moderate';
+                statusText = '🟡 Moderate - About 45 mins';
+            } else if(data.queueStatus === 'High') {
+                statusClass = 'status-high';
+                statusText = '🔴 High - Long wait expected';
+            } else {
+                statusClass = 'status-moderate';
+                statusText = data.queueStatus;
+            }
+            
+            queueElement.className = 'queue-status ' + statusClass;
+            queueElement.innerText = statusText;
+            waitElement.innerText = 'Estimated wait: ' + data.waitTime;
+            
+            // Store coordinates for directions
+            document.getElementById('centerLat').value = data.latitude;
+            document.getElementById('centerLng').value = data.longitude;
+            
+            // Show result card
+            document.getElementById('resultCard').style.display = 'block';
+            
+            // Initialize map
+            initMap(data.latitude, data.longitude, data.centerName);
+            
+            // Scroll to result
+            document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+            
+            showMessage('Record found! Scroll down to see your PVC collection center.', 'success');
+        }
+        
+        // ===== MAP FUNCTION =====
+        function initMap(lat, lng, title) {
+            const mapContainer = document.getElementById('map');
+            if(!mapContainer) return;
+            
+            if(currentMap) {
+                currentMap.remove();
+            }
+            
+            currentMap = L.map('map').setView([lat, lng], 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(currentMap);
+            
+            L.marker([lat, lng]).addTo(currentMap)
+                .bindPopup('<b>' + title + '</b><br>PVC Collection Center')
+                .openPopup();
+        }
+        
+        // ===== DIRECTIONS FUNCTION =====
+        function getDirections() {
+            const lat = document.getElementById('centerLat').value;
+            const lng = document.getElementById('centerLng').value;
+            
+            if(!lat || !lng) {
+                showMessage('Location not available. Please search again.', 'error');
+                return;
+            }
+            
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    const url = 'https://www.google.com/maps/dir/' + userLat + ',' + userLng + '/' + lat + ',' + lng;
+                    window.open(url, '_blank');
+                }, function() {
+                    const url = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+                    window.open(url, '_blank');
+                });
+            } else {
+                const url = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+                window.open(url, '_blank');
+            }
+        }
+        
+        // ===== REPORT QUEUE FUNCTION =====
+        function reportQueue() {
+            const centerName = document.getElementById('centerName').innerText || 'Unknown Center';
+            const status = prompt('Report queue status:\n\n1 - Low (no wait, fast service)\n2 - Moderate (30-60 minutes wait)\n3 - High (1-2 hours wait)\n\nEnter 1, 2, or 3:');
+            
+            let statusText = '';
+            let waitTime = '';
+            let statusClass = '';
+            let displayText = '';
+            
+            if(status === '1') {
+                statusText = 'Low';
+                waitTime = '10-20 minutes';
+                statusClass = 'status-low';
+                displayText = '🟢 Low - Short wait';
+            } else if(status === '2') {
+                statusText = 'Moderate';
+                waitTime = '30-60 minutes';
+                statusClass = 'status-moderate';
+                displayText = '🟡 Moderate - About 45 mins';
+            } else if(status === '3') {
+                statusText = 'High';
+                waitTime = '1-2 hours';
+                statusClass = 'status-high';
+                displayText = '🔴 High - Long wait expected';
+            } else {
+                showMessage('Invalid selection. Please try again.', 'error');
+                return;
+            }
+            
+            const queueElement = document.getElementById('queueStatus');
+            const waitTimeElement = document.getElementById('waitTime');
+            
+            queueElement.className = 'queue-status ' + statusClass;
+            queueElement.innerText = displayText;
+            waitTimeElement.innerText = 'Estimated wait: ' + waitTime;
+            
+            showMessage('Thank you! Your report for "' + centerName + '" has been submitted as "' + statusText + '" queue status.', 'success');
+        }
+        
+        // ===== VALIDATE VIN =====
+        function validateVIN(vin) {
+            return /^[0-9]{10,15}$/.test(vin);
+        }
+        
+        // ===== SHOW MESSAGE FUNCTION =====
+        function showMessage(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-' + (type === 'error' ? 'danger' : 'success') + ' alert-dismissible fade show';
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '100px';
+            alertDiv.style.left = '50%';
+            alertDiv.style.transform = 'translateX(-50%)';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.style.minWidth = '300px';
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(function() {
+                alertDiv.remove();
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

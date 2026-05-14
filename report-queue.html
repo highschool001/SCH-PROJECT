@@ -615,169 +615,287 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let currentStep = 1;
+    let selectedStatus = '';
     
-    <script>
-        let currentStep = 1;
-        let selectedStatus = '';
-        let reports = JSON.parse(localStorage.getItem('queueReports')) || [];
-        
-        // Update step indicators
-        function updateSteps() {
-            for (let i = 1; i <= 3; i++) {
-                const stepElement = document.getElementById(`step${i}Indicator`);
-                const formStep = document.getElementById(`step${i}`);
-                
-                if (i < currentStep) {
+    // ===== STEP FUNCTIONS =====
+    function updateSteps() {
+        for (let i = 1; i <= 3; i++) {
+            const stepElement = document.getElementById(`step${i}Indicator`);
+            const formStep = document.getElementById(`step${i}`);
+            
+            if (i < currentStep) {
+                if (stepElement) {
                     stepElement.classList.add('completed');
                     stepElement.classList.remove('active');
-                } else if (i === currentStep) {
+                }
+            } else if (i === currentStep) {
+                if (stepElement) {
                     stepElement.classList.add('active');
                     stepElement.classList.remove('completed');
+                }
+                if (formStep) {
                     formStep.classList.add('active-step');
-                } else {
+                }
+            } else {
+                if (stepElement) {
                     stepElement.classList.remove('active', 'completed');
+                }
+                if (formStep) {
                     formStep.classList.remove('active-step');
                 }
             }
         }
-        
-        // Next step
-        function nextStep() {
-            if (currentStep === 1) {
-                const center = document.getElementById('centerSelect').value;
-                if (!center) {
-                    alert('Please select a collection center');
-                    return;
-                }
-            }
-            
-            if (currentStep === 2) {
-                const status = document.getElementById('queueStatus').value;
-                if (!status) {
-                    alert('Please select a queue status');
-                    return;
-                }
-                
-                // Update confirmation page
-                document.getElementById('confirmCenter').innerText = document.getElementById('centerSelect').options[document.getElementById('centerSelect').selectedIndex]?.text || '-';
-                
-                let statusText = '';
-                if (selectedStatus === 'low') statusText = '🟢 Low - Short wait';
-                else if (selectedStatus === 'moderate') statusText = '🟡 Moderate - About 45 mins';
-                else if (selectedStatus === 'high') statusText = '🔴 High - Long wait expected';
-                document.getElementById('confirmStatus').innerText = statusText;
-                
-                document.getElementById('confirmWaitTime').innerText = document.getElementById('waitTimeDisplay').innerText + ' minutes';
-                
-                const reporterName = document.getElementById('reporterName').value;
-                document.getElementById('confirmReporter').innerText = reporterName || 'Anonymous';
-            }
-            
-            if (currentStep < 3) {
-                currentStep++;
-                updateSteps();
+    }
+    
+    function nextStep() {
+        if (currentStep === 1) {
+            const center = document.getElementById('centerSelect').value;
+            if (!center) {
+                alert('Please select a collection center');
+                return;
             }
         }
         
-        // Previous step
-        function prevStep() {
-            if (currentStep > 1) {
-                currentStep--;
-                updateSteps();
+        if (currentStep === 2) {
+            const status = document.getElementById('queueStatus').value;
+            if (!status) {
+                alert('Please select a queue status');
+                return;
             }
+            
+            const centerSelect = document.getElementById('centerSelect');
+            const selectedCenterText = centerSelect.options[centerSelect.selectedIndex]?.text || '-';
+            document.getElementById('confirmCenter').innerText = selectedCenterText;
+            
+            let statusText = '';
+            if (selectedStatus === 'low') statusText = '🟢 Low - Short wait';
+            else if (selectedStatus === 'moderate') statusText = '🟡 Moderate - About 45 mins';
+            else if (selectedStatus === 'high') statusText = '🔴 High - Long wait expected';
+            document.getElementById('confirmStatus').innerText = statusText;
+            
+            const waitTimeDisplay = document.getElementById('waitTimeDisplay');
+            document.getElementById('confirmWaitTime').innerText = (waitTimeDisplay ? waitTimeDisplay.innerText : '30') + ' minutes';
+            
+            const reporterName = document.getElementById('reporterName');
+            document.getElementById('confirmReporter').innerText = (reporterName && reporterName.value) ? reporterName.value : 'Anonymous';
         }
         
-        // Select queue status
-        function selectQueueStatus(status) {
-            selectedStatus = status;
-            document.getElementById('queueStatus').value = status;
-            
-            // Update UI
-            document.querySelectorAll('.queue-option').forEach(option => {
-                option.classList.remove('selected');
+        if (currentStep < 3) {
+            currentStep++;
+            updateSteps();
+        }
+    }
+    
+    function prevStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            updateSteps();
+        }
+    }
+    
+    function selectQueueStatus(status) {
+        selectedStatus = status;
+        const queueStatusInput = document.getElementById('queueStatus');
+        if (queueStatusInput) {
+            queueStatusInput.value = status;
+        }
+        
+        const queueOptions = document.querySelectorAll('.queue-option');
+        queueOptions.forEach(option => {
+            option.classList.remove('selected');
+        });
+        
+        const selectedOption = document.querySelector(`.queue-option[data-status="${status}"]`);
+        if (selectedOption) {
+            selectedOption.classList.add('selected');
+        }
+    }
+    
+    // Wait time slider
+    const waitSlider = document.getElementById('waitTimeSlider');
+    const waitDisplay = document.getElementById('waitTimeDisplay');
+    
+    if (waitSlider && waitDisplay) {
+        waitSlider.addEventListener('input', function() {
+            waitDisplay.innerText = this.value;
+        });
+    }
+    
+    // ===== LOAD CENTERS FROM BACKEND =====
+    function loadCenters() {
+        console.log('Loading centers from backend...');
+        fetch('https://Highschool001.pythonanywhere.com/api/centers-list/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Loaded centers:', data);
+                const centerSelect = document.getElementById('centerSelect');
+                if (centerSelect) {
+                    centerSelect.innerHTML = '<option value="">-- Select a collection center --</option>';
+                    
+                    data.forEach(center => {
+                        const option = document.createElement('option');
+                        option.value = center.center_id;
+                        option.textContent = `${center.name} - ${center.address.substring(0, 60)}`;
+                        centerSelect.appendChild(option);
+                        console.log('Added center:', center.center_id, center.name);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading centers:', error);
+                alert('Could not load centers. Make sure the backend is running on http://127.0.0.1:8000/');
             });
-            document.querySelector(`.queue-option[data-status="${status}"]`).classList.add('selected');
+    }
+    
+    // ===== SUBMIT REPORT TO BACKEND =====
+    function submitReport() {
+        console.log('submitReport function called');
+        
+        const centerSelect = document.getElementById('centerSelect');
+        const centerId = centerSelect ? centerSelect.value : null;
+        
+        if (!centerId) {
+            alert('Please select a collection center');
+            return;
         }
         
-        // Wait time slider
+        if (!selectedStatus) {
+            alert('Please select a queue status');
+            return;
+        }
+        
+        const waitTimeDisplay = document.getElementById('waitTimeDisplay');
+        const waitTime = waitTimeDisplay ? parseInt(waitTimeDisplay.innerText) : 30;
+        
+        const reporterNameInput = document.getElementById('reporterName');
+        const reporterPhoneInput = document.getElementById('reporterPhone');
+        const commentsInput = document.getElementById('comments');
+        
+        const reporterName = (reporterNameInput && reporterNameInput.value) ? reporterNameInput.value : 'Anonymous';
+        const reporterPhone = (reporterPhoneInput && reporterPhoneInput.value) ? reporterPhoneInput.value : '';
+        const comments = (commentsInput && commentsInput.value) ? commentsInput.value : '';
+        
+        const reportData = {
+            center_id: centerId,
+            status: selectedStatus.toUpperCase(),
+            wait_time: waitTime,
+            reporter_name: reporterName,
+            reporter_phone: reporterPhone,
+            comments: comments
+        };
+        
+        console.log('Sending report data:', reportData);
+        
+        fetch('https://Highschool001.pythonanywhere.com/api/submit-report/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(reportData)
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success! Response data:', data);
+            
+            const stepIndicator = document.querySelector('.step-indicator');
+            const formSteps = document.querySelectorAll('.form-step');
+            const successMessage = document.getElementById('successMessage');
+            
+            if (stepIndicator) stepIndicator.style.display = 'none';
+            formSteps.forEach(step => {
+                step.style.display = 'none';
+            });
+            if (successMessage) successMessage.style.display = 'block';
+            
+            alert('✓ Report submitted successfully!\n\nReport ID: ' + (data.report_id || 'N/A') + '\nThank you for helping fellow voters!');
+        })
+        .catch(error => {
+            console.error('Error submitting report:', error);
+            alert('Error submitting report: ' + error.message + '\n\nMake sure the backend is running on http://127.0.0.1:8000/');
+        });
+    }
+    
+    // ===== RESET FORM =====
+    function resetForm() {
+        console.log('Resetting form');
+        
+        const centerSelect = document.getElementById('centerSelect');
+        const reporterName = document.getElementById('reporterName');
+        const reporterPhone = document.getElementById('reporterPhone');
+        const comments = document.getElementById('comments');
         const waitSlider = document.getElementById('waitTimeSlider');
         const waitDisplay = document.getElementById('waitTimeDisplay');
         
-        if (waitSlider) {
-            waitSlider.addEventListener('input', function() {
-                waitDisplay.innerText = this.value;
-            });
-        }
+        if (centerSelect) centerSelect.value = '';
+        if (reporterName) reporterName.value = '';
+        if (reporterPhone) reporterPhone.value = '';
+        if (comments) comments.value = '';
+        if (waitSlider) waitSlider.value = '30';
+        if (waitDisplay) waitDisplay.innerText = '30';
         
-        // Submit report
-        function submitReport() {
-            const report = {
-                id: Date.now(),
-                center: document.getElementById('centerSelect').options[document.getElementById('centerSelect').selectedIndex]?.text || '',
-                status: selectedStatus,
-                waitTime: document.getElementById('waitTimeDisplay').innerText,
-                reporterName: document.getElementById('reporterName').value || 'Anonymous',
-                reporterPhone: document.getElementById('reporterPhone').value || '',
-                comments: document.getElementById('comments').value || '',
-                timestamp: new Date().toLocaleString()
-            };
-            
-            reports.unshift(report);
-            localStorage.setItem('queueReports', JSON.stringify(reports));
-            
-            // Hide form, show success
-            document.querySelector('.step-indicator').style.display = 'none';
-            document.querySelectorAll('.form-step').forEach(step => {
-                step.style.display = 'none';
-            });
-            document.getElementById('successMessage').style.display = 'block';
-            
-            // Show success message
-            alert('✓ Report submitted successfully!\n\nThank you for helping fellow voters.');
-        }
+        selectedStatus = '';
+        const queueStatusInput = document.getElementById('queueStatus');
+        if (queueStatusInput) queueStatusInput.value = '';
         
-        // Reset form
-        function resetForm() {
-            // Reset all form fields
-            document.getElementById('centerSelect').value = '';
-            document.getElementById('reporterName').value = '';
-            document.getElementById('reporterPhone').value = '';
-            document.getElementById('comments').value = '';
-            document.getElementById('queueStatus').value = '';
-            if (waitSlider) waitSlider.value = '30';
-            if (waitDisplay) waitDisplay.innerText = '30';
+        const queueOptions = document.querySelectorAll('.queue-option');
+        queueOptions.forEach(option => {
+            option.classList.remove('selected');
+        });
+        
+        const stepIndicator = document.querySelector('.step-indicator');
+        const successMessage = document.getElementById('successMessage');
+        
+        if (stepIndicator) stepIndicator.style.display = 'flex';
+        if (successMessage) successMessage.style.display = 'none';
+        
+        currentStep = 1;
+        
+        for (let i = 1; i <= 3; i++) {
+            const formStep = document.getElementById(`step${i}`);
+            if (formStep) {
+                if (i === 1) {
+                    formStep.classList.add('active-step');
+                } else {
+                    formStep.classList.remove('active-step');
+                }
+            }
             
-            selectedStatus = '';
-            document.querySelectorAll('.queue-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            document.querySelector('.step-indicator').style.display = 'flex';
-            document.getElementById('successMessage').style.display = 'none';
-            
-            currentStep = 1;
-            updateSteps();
-            document.getElementById('step1').classList.add('active-step');
-            
-            // Reset step classes
-            for (let i = 1; i <= 3; i++) {
-                const stepElement = document.getElementById(`step${i}Indicator`);
-                const formStep = document.getElementById(`step${i}`);
+            const stepElement = document.getElementById(`step${i}Indicator`);
+            if (stepElement) {
                 if (i === 1) {
                     stepElement.classList.add('active');
                     stepElement.classList.remove('completed');
                 } else {
                     stepElement.classList.remove('active', 'completed');
                 }
-                if (i !== 1) {
-                    formStep.classList.remove('active-step');
-                }
             }
         }
-        
-        console.log('Queue Reporting Page Loaded');
-    </script>
+    }
+    
+    // ===== LOAD CENTERS WHEN PAGE OPENS =====
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded - Loading centers...');
+        loadCenters();
+    });
+    
+    console.log('Queue Reporting Page Ready - Connected to Backend API');
+</script>
+
 </body>
 </html>

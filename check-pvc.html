@@ -495,247 +495,291 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // ===== MOCK DATA FOR FALLBACK (if backend not available) =====
+    const fallbackData = {
+        "1234567890": {
+            name: "John Adegoke Ogunleye",
+            state: "Oyo State",
+            lga: "Ogbomoso North",
+            centerName: "LAUTECH PVC Collection Center",
+            centerAddress: "LAUTECH Main Gate, Ogbomoso, Oyo State",
+            latitude: 8.1574,
+            longitude: 4.2587,
+            queueStatus: "MODERATE",
+            waitTime: "45",
+            puName: "LAUTECH Main Gate Polling Unit",
+            puCode: "04/01/01/001"
+        },
+        "0987654321": {
+            name: "Adebayo Oluwaseun",
+            state: "Oyo State",
+            lga: "Ibadan North",
+            centerName: "Ibadan North INEC Office",
+            centerAddress: "Secretariat Road, Ibadan, Oyo State",
+            latitude: 7.3775,
+            longitude: 3.9470,
+            queueStatus: "LOW",
+            waitTime: "15",
+            puName: "Bodija Market Polling Unit",
+            puCode: "02/04/03/012"
+        },
+        "1122334455": {
+            name: "Fatima Abubakar",
+            state: "Lagos State",
+            lga: "Ikeja",
+            centerName: "Ikeja Local Government Secretariat",
+            centerAddress: "Ikeja, Lagos State",
+            latitude: 6.6018,
+            longitude: 3.3515,
+            queueStatus: "HIGH",
+            waitTime: "90",
+            puName: "Ikeja City Hall Polling Unit",
+            puCode: "01/02/01/005"
+        }
+    };
     
-    <script>
-        // ===== MOCK DATA =====
-        const mockVoterData = {
-            "1234567890": {
-                name: "John Adegoke Ogunleye",
-                state: "Oyo",
-                lga: "Ogbomoso North",
-                centerName: "LAUTECH PVC Collection Center",
-                centerAddress: "LAUTECH Main Gate, Ogbomoso, Oyo State",
-                latitude: 8.1574,
-                longitude: 4.2587,
-                queueStatus: "Moderate",
-                waitTime: "45 minutes"
-            },
-            "0987654321": {
-                name: "Adebayo Oluwaseun",
-                state: "Oyo",
-                lga: "Ibadan North",
-                centerName: "Ibadan North INEC Office",
-                centerAddress: "Secretariat Road, Ibadan, Oyo State",
-                latitude: 7.3775,
-                longitude: 3.9470,
-                queueStatus: "Low",
-                waitTime: "15 minutes"
-            },
-            "1122334455": {
-                name: "Fatima Abubakar",
-                state: "Lagos",
-                lga: "Ikeja",
-                centerName: "Ikeja Local Government Secretariat",
-                centerAddress: "Ikeja, Lagos State",
-                latitude: 6.6018,
-                longitude: 3.3515,
-                queueStatus: "High",
-                waitTime: "90 minutes"
-            }
-        };
+    let currentMap = null;
+    
+    // Test VIN function
+    function testVIN(vin) {
+        document.getElementById('vinInput').value = vin;
+        searchPVCenter();
+    }
+    
+    // Main search function
+    function searchPVCenter() {
+        const vin = document.getElementById('vinInput').value.trim();
         
-        let currentMap = null;
-        
-        // ===== FUNCTION TO TEST VIN (Fills input and searches) =====
-        function testVIN(vin) {
-            document.getElementById('vinInput').value = vin;
-            searchPVCenter();
+        if (!vin) {
+            alert('Please enter your VIN');
+            return;
         }
         
-        // ===== MAIN SEARCH FUNCTION =====
-        function searchPVCenter() {
-            const vinInput = document.getElementById('vinInput');
-            const vin = vinInput ? vinInput.value.trim() : '';
-            
-            // Validate
-            if(!vin) {
-                showMessage('Please enter your VIN', 'error');
-                return;
-            }
-            
-            if(!validateVIN(vin)) {
-                showMessage('Invalid VIN format. Please enter 10-15 digits only.', 'error');
-                return;
-            }
-            
-            // Show loading
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('resultCard').style.display = 'none';
-            
-            // Simulate API delay
-            setTimeout(function() {
-                document.getElementById('loading').style.display = 'none';
-                
-                if(mockVoterData[vin]) {
-                    displayResult(mockVoterData[vin]);
-                } else {
-                    showMessage('VIN not found. Please check your VIN and try again.', 'error');
+        if (vin.length < 10 || vin.length > 15) {
+            alert('VIN must be 10-15 digits');
+            return;
+        }
+        
+        if (!/^\d+$/.test(vin)) {
+            alert('VIN must contain only numbers');
+            return;
+        }
+        
+        // Show loading
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('resultCard').style.display = 'none';
+        
+        // Try to fetch from backend first
+        fetch(`https://Highschool001.pythonanywhere.com/api/voter/${vin}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Backend not available');
                 }
-            }, 1000);
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                displayResultFromAPI(data);
+            })
+            .catch(error => {
+                console.log('Backend not available, using fallback data:', error);
+                // Use fallback data if backend is not available
+                if (fallbackData[vin]) {
+                    document.getElementById('loading').style.display = 'none';
+                    displayResultFromFallback(fallbackData[vin]);
+                } else {
+                    document.getElementById('loading').style.display = 'none';
+                    alert('VIN not found!\n\nTry: 1234567890, 0987654321, or 1122334455');
+                }
+            });
+    }
+    
+    function displayResultFromAPI(data) {
+        document.getElementById('voterName').innerHTML = '<i class="fas fa-user-circle"></i> ' + data.name;
+        document.getElementById('voterState').innerHTML = '<i class="fas fa-map-marker-alt"></i> ' + data.state;
+        document.getElementById('voterLGA').innerHTML = '<i class="fas fa-city"></i> ' + data.lga;
+        document.getElementById('centerName').innerHTML = '<i class="fas fa-building"></i> ' + data.center_name;
+        document.getElementById('centerAddress').innerHTML = '<i class="fas fa-location-dot"></i> ' + data.center_address;
+        
+        const queueElement = document.getElementById('queueStatus');
+        const waitElement = document.getElementById('waitTime');
+        
+        let statusClass = '';
+        let statusText = '';
+        
+        if (data.queue_status === 'LOW') {
+            statusClass = 'status-low';
+            statusText = '🟢 Low - Short wait';
+        } else if (data.queue_status === 'MODERATE') {
+            statusClass = 'status-moderate';
+            statusText = '🟡 Moderate - About 45 mins';
+        } else if (data.queue_status === 'HIGH') {
+            statusClass = 'status-high';
+            statusText = '🔴 High - Long wait expected';
+        } else {
+            statusClass = 'status-moderate';
+            statusText = '🟡 Moderate';
         }
         
-        // ===== DISPLAY RESULT FUNCTION =====
-        function displayResult(data) {
-            // Populate fields
-            document.getElementById('voterName').innerHTML = '<i class="fas fa-user-circle"></i> ' + data.name;
-            document.getElementById('voterState').innerHTML = '<i class="fas fa-map-marker-alt"></i> ' + data.state;
-            document.getElementById('voterLGA').innerHTML = '<i class="fas fa-city"></i> ' + data.lga;
-            document.getElementById('centerName').innerHTML = '<i class="fas fa-building"></i> ' + data.centerName;
-            document.getElementById('centerAddress').innerHTML = '<i class="fas fa-location-dot"></i> ' + data.centerAddress;
-            
-            // Queue status with colors
-            const queueElement = document.getElementById('queueStatus');
-            const waitElement = document.getElementById('waitTime');
-            
-            let statusClass = '';
-            let statusText = '';
-            
-            if(data.queueStatus === 'Low') {
-                statusClass = 'status-low';
-                statusText = '🟢 Low - Short wait';
-            } else if(data.queueStatus === 'Moderate') {
-                statusClass = 'status-moderate';
-                statusText = '🟡 Moderate - About 45 mins';
-            } else if(data.queueStatus === 'High') {
-                statusClass = 'status-high';
-                statusText = '🔴 High - Long wait expected';
-            } else {
-                statusClass = 'status-moderate';
-                statusText = data.queueStatus;
-            }
-            
-            queueElement.className = 'queue-status ' + statusClass;
-            queueElement.innerText = statusText;
-            waitElement.innerText = 'Estimated wait: ' + data.waitTime;
-            
-            // Store coordinates for directions
-            document.getElementById('centerLat').value = data.latitude;
-            document.getElementById('centerLng').value = data.longitude;
-            
-            // Show result card
-            document.getElementById('resultCard').style.display = 'block';
-            
-            // Initialize map
-            initMap(data.latitude, data.longitude, data.centerName);
-            
-            // Scroll to result
-            document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
-            
-            showMessage('Record found! Scroll down to see your PVC collection center.', 'success');
+        queueElement.className = 'queue-status ' + statusClass;
+        queueElement.innerText = statusText;
+        waitElement.innerText = 'Estimated wait: ' + data.wait_time + ' minutes';
+        
+        document.getElementById('centerLat').value = data.center_latitude;
+        document.getElementById('centerLng').value = data.center_longitude;
+        
+        document.getElementById('resultCard').style.display = 'block';
+        initMap(parseFloat(data.center_latitude), parseFloat(data.center_longitude), data.center_name);
+        document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function displayResultFromFallback(data) {
+        document.getElementById('voterName').innerHTML = '<i class="fas fa-user-circle"></i> ' + data.name;
+        document.getElementById('voterState').innerHTML = '<i class="fas fa-map-marker-alt"></i> ' + data.state;
+        document.getElementById('voterLGA').innerHTML = '<i class="fas fa-city"></i> ' + data.lga;
+        document.getElementById('centerName').innerHTML = '<i class="fas fa-building"></i> ' + data.centerName;
+        document.getElementById('centerAddress').innerHTML = '<i class="fas fa-location-dot"></i> ' + data.centerAddress;
+        
+        const queueElement = document.getElementById('queueStatus');
+        const waitElement = document.getElementById('waitTime');
+        
+        let statusClass = '';
+        let statusText = '';
+        
+        if (data.queueStatus === 'LOW') {
+            statusClass = 'status-low';
+            statusText = '🟢 Low - Short wait';
+        } else if (data.queueStatus === 'MODERATE') {
+            statusClass = 'status-moderate';
+            statusText = '🟡 Moderate - About 45 mins';
+        } else if (data.queueStatus === 'HIGH') {
+            statusClass = 'status-high';
+            statusText = '🔴 High - Long wait expected';
+        } else {
+            statusClass = 'status-moderate';
+            statusText = '🟡 Moderate';
         }
         
-        // ===== MAP FUNCTION =====
-        function initMap(lat, lng, title) {
-            const mapContainer = document.getElementById('map');
-            if(!mapContainer) return;
-            
-            if(currentMap) {
-                currentMap.remove();
-            }
-            
-            currentMap = L.map('map').setView([lat, lng], 15);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(currentMap);
-            
-            L.marker([lat, lng]).addTo(currentMap)
-                .bindPopup('<b>' + title + '</b><br>PVC Collection Center')
-                .openPopup();
+        queueElement.className = 'queue-status ' + statusClass;
+        queueElement.innerText = statusText;
+        waitElement.innerText = 'Estimated wait: ' + data.waitTime + ' minutes';
+        
+        document.getElementById('centerLat').value = data.latitude;
+        document.getElementById('centerLng').value = data.longitude;
+        
+        document.getElementById('resultCard').style.display = 'block';
+        initMap(data.latitude, data.longitude, data.centerName);
+        document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function initMap(lat, lng, title) {
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) return;
+        
+        if (currentMap) {
+            currentMap.remove();
         }
         
-        // ===== DIRECTIONS FUNCTION =====
-        function getDirections() {
-            const lat = document.getElementById('centerLat').value;
-            const lng = document.getElementById('centerLng').value;
-            
-            if(!lat || !lng) {
-                showMessage('Location not available. Please search again.', 'error');
-                return;
-            }
-            
-            if(navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+        currentMap = L.map('map').setView([lat, lng], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(currentMap);
+        
+        L.marker([lat, lng]).addTo(currentMap)
+            .bindPopup('<b>' + title + '</b><br>PVC Collection Center')
+            .openPopup();
+    }
+    
+    function getDirections() {
+        const lat = document.getElementById('centerLat').value;
+        const lng = document.getElementById('centerLng').value;
+        
+        if (!lat || !lng) {
+            alert('Location not available. Please search again.');
+            return;
+        }
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
                     const userLat = position.coords.latitude;
                     const userLng = position.coords.longitude;
-                    const url = 'https://www.google.com/maps/dir/' + userLat + ',' + userLng + '/' + lat + ',' + lng;
+                    const url = `https://www.google.com/maps/dir/${userLat},${userLng}/${lat},${lng}`;
                     window.open(url, '_blank');
-                }, function() {
-                    const url = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+                },
+                function() {
+                    const url = `https://www.google.com/maps?q=${lat},${lng}`;
                     window.open(url, '_blank');
-                });
-            } else {
-                const url = 'https://www.google.com/maps?q=' + lat + ',' + lng;
-                window.open(url, '_blank');
-            }
+                }
+            );
+        } else {
+            const url = `https://www.google.com/maps?q=${lat},${lng}`;
+            window.open(url, '_blank');
+        }
+    }
+    
+    function reportQueue() {
+        const centerName = document.getElementById('centerName').innerText || 'Unknown Center';
+        const status = prompt('Report queue status:\n\n1 - Low (no wait, fast service)\n2 - Moderate (30-60 minutes wait)\n3 - High (1-2 hours wait)\n\nEnter 1, 2, or 3:');
+        
+        let statusText = '';
+        let statusCode = '';
+        
+        if (status === '1') {
+            statusText = 'Low';
+            statusCode = 'LOW';
+        } else if (status === '2') {
+            statusText = 'Moderate';
+            statusCode = 'MODERATE';
+        } else if (status === '3') {
+            statusText = 'High';
+            statusCode = 'HIGH';
+        } else {
+            alert('Invalid selection. Please try again.');
+            return;
         }
         
-        // ===== REPORT QUEUE FUNCTION =====
-        function reportQueue() {
-            const centerName = document.getElementById('centerName').innerText || 'Unknown Center';
-            const status = prompt('Report queue status:\n\n1 - Low (no wait, fast service)\n2 - Moderate (30-60 minutes wait)\n3 - High (1-2 hours wait)\n\nEnter 1, 2, or 3:');
-            
-            let statusText = '';
-            let waitTime = '';
-            let statusClass = '';
-            let displayText = '';
-            
-            if(status === '1') {
-                statusText = 'Low';
-                waitTime = '10-20 minutes';
-                statusClass = 'status-low';
-                displayText = '🟢 Low - Short wait';
-            } else if(status === '2') {
-                statusText = 'Moderate';
-                waitTime = '30-60 minutes';
-                statusClass = 'status-moderate';
-                displayText = '🟡 Moderate - About 45 mins';
-            } else if(status === '3') {
-                statusText = 'High';
-                waitTime = '1-2 hours';
-                statusClass = 'status-high';
-                displayText = '🔴 High - Long wait expected';
-            } else {
-                showMessage('Invalid selection. Please try again.', 'error');
-                return;
-            }
-            
-            const queueElement = document.getElementById('queueStatus');
-            const waitTimeElement = document.getElementById('waitTime');
-            
-            queueElement.className = 'queue-status ' + statusClass;
-            queueElement.innerText = displayText;
-            waitTimeElement.innerText = 'Estimated wait: ' + waitTime;
-            
-            showMessage('Thank you! Your report for "' + centerName + '" has been submitted as "' + statusText + '" queue status.', 'success');
+        alert(`Thank you! Your report for "${centerName}" has been submitted as "${statusText}" queue status.\n\nOther voters will benefit from this information.`);
+        
+        const queueElement = document.getElementById('queueStatus');
+        const waitElement = document.getElementById('waitTime');
+        
+        let statusClass = '';
+        let displayText = '';
+        let waitMinutes = status === '1' ? '10-20' : (status === '2' ? '30-60' : '60-120');
+        
+        if (status === '1') {
+            statusClass = 'status-low';
+            displayText = '🟢 Low - Short wait';
+        } else if (status === '2') {
+            statusClass = 'status-moderate';
+            displayText = '🟡 Moderate - About 45 mins';
+        } else {
+            statusClass = 'status-high';
+            displayText = '🔴 High - Long wait expected';
         }
         
-        // ===== VALIDATE VIN =====
-        function validateVIN(vin) {
-            return /^[0-9]{10,15}$/.test(vin);
-        }
+        queueElement.className = 'queue-status ' + statusClass;
+        queueElement.innerText = displayText;
+        waitElement.innerText = `Estimated wait: ${waitMinutes} minutes (user reported)`;
+    }
+    
+    function shareInfo() {
+        const centerName = document.getElementById('centerName').innerText || 'PVC Collection Center';
+        const address = document.getElementById('centerAddress').innerText || '';
         
-        // ===== SHOW MESSAGE FUNCTION =====
-        function showMessage(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-' + (type === 'error' ? 'danger' : 'success') + ' alert-dismissible fade show';
-            alertDiv.style.position = 'fixed';
-            alertDiv.style.top = '100px';
-            alertDiv.style.left = '50%';
-            alertDiv.style.transform = 'translateX(-50%)';
-            alertDiv.style.zIndex = '9999';
-            alertDiv.style.minWidth = '300px';
-            alertDiv.innerHTML = `
-                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(alertDiv);
-            
-            setTimeout(function() {
-                alertDiv.remove();
-            }, 4000);
-        }
-    </script>
+        const textToCopy = `PVC Collection Center: ${centerName}\nAddress: ${address}\n\nFind yours at VoterEmpower System`;
+        
+        navigator.clipboard.writeText(textToCopy);
+        alert('Information copied to clipboard! You can now share it.');
+    }
+    
+    console.log('Check PVC Page Loaded - Connected to Backend API');
+</script>
+
 </body>
 </html>
